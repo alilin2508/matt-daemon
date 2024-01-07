@@ -1,6 +1,6 @@
 NAME    = Matt_daemon
 RM      = rm      -rf
-CC      = c++
+CC      = clang++
 FLAGS   = -Wall -Wextra -Werror
 DIR_INC = -I ./includes/
 
