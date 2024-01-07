@@ -1,3 +1,4 @@
+//#include "Tintin_reporter.hpp"
 #include "Matt_daemon.hpp"
 
 int main()
@@ -10,6 +11,5 @@ int main()
 	//check matt_daemon.lock doeas not exist
 	// Create a daemon
 	Matt_daemon daemon;
-
 	return 0;
 }

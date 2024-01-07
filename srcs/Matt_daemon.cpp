@@ -1,4 +1,5 @@
 #include "Matt_daemon.hpp"
+#include "Tintin_reporter.hpp"
 
 int Matt_daemon::set_nonblock(int fd)
 {
@@ -23,7 +24,7 @@ void Matt_daemon::close_server()
 
 Matt_daemon::Matt_daemon()
 {
-	signal(SIGCHLD, SIG_IGN);
+		signal(SIGCHLD, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
     signal(SIGTERM, SIG_IGN);
     signal(SIGKILL, SIG_IGN);
@@ -46,7 +47,16 @@ Matt_daemon::Matt_daemon()
         exit(EXIT_SUCCESS);
     }
 
+		pid_t daemonPid = getpid();
+    char daemonPidStr[30];
+    snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ",daemonPid);
+
     umask(0);
+		
+		myReporter.openOrCreate("/var/log/matt_daemon");
+		myReporter.logs("Entering Daemon mode.", "INFO");
+		myReporter.logs(daemonPidStr, "INFO");
+		myReporter.closeStream();
 
     MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -103,4 +113,5 @@ Matt_daemon::Matt_daemon()
 
 Matt_daemon::~Matt_daemon()
 {
+  std::cout << "Destructor Matt Daemon called" << std::endl;
 }

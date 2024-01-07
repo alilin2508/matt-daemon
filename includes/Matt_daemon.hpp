@@ -1,6 +1,7 @@
 #ifndef MATT_DAEMON_HPP
 # define MATT_DAEMON_HPP
 
+# include "Tintin_reporter.hpp"
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -37,7 +38,7 @@ private:
 	int					EPoll;
 	struct epoll_event	Events[MAX_EVENTS];
 	struct epoll_event	Event;
+  Tintin_reporter myReporter;
 };
-
 
 #endif
