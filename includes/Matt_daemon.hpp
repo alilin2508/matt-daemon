@@ -30,9 +30,10 @@ public:
 	Matt_daemon();
 	~Matt_daemon();
 
-	int 		set_nonblock(int fd);
-	void		close_server();
+	int 	set_nonblock(int fd);
+	void	close_server();
 	static void signalHandler(int sig);
+	void	unlockDaemon();
 private:
 	int					MasterSocket;
 	std::vector<int>	ClientSocket;

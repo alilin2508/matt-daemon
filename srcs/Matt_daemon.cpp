@@ -17,12 +17,17 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
+		unlockDaemon();
     close(MasterSocket);
     close(EPoll);
     exit(EXIT_SUCCESS);
 }
 
-static void Matt_daemon::signalHandler(int sig) {
+void	Matt_daemon::unlockDaemon() {
+	std::remove("/var/lock/matt_daemon.lock");	
+}
+
+void Matt_daemon::signalHandler(int sig) {
     cout << "Signal received: " << sig << endl;
     exit(EXIT_SUCCESS);
 }
