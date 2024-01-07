@@ -34,7 +34,9 @@ Matt_daemon::Matt_daemon()
 
     umask(0);
 
-		Tintin_reporter reporter;
+		myReporter.openOrCreate(streamLogFile, "/var/log/matt_daemon")
+		myReporter.logs(streamLogFile, "TEST", "INFO")
+
     int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     struct sockaddr_in SockAddr;
