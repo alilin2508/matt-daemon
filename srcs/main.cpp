@@ -2,16 +2,14 @@
 
 int main()
 {
-	//check getuid()
+	// if (getuid() != 0)
+	// {
+	// 	std::cout << "User launching the daemon server is not root" << std::endl;
+	// 	return (1);
+	// }
 	//check matt_daemon.lock doeas not exist
 	// Create a daemon
 	Matt_daemon daemon;
-
-	// Start the daemon
-	daemon.start();
-
-	// Wait for the daemon to stop
-	daemon.wait();
 
 	return 0;
 }
