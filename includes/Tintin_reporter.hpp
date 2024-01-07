@@ -11,14 +11,15 @@ class Tintin_reporter
 {
 public:
 	Tintin_reporter();
-	void logs(const std::string& message);
+	void logs(const std::string& message, const char* mode);
 	~Tintin_reporter();
 private:
-	void printFile();
-	void openOrCreate(std::ofstream filestream, const std::string& filename, const char* mode)
-	void printFile(std::ofstream filestream, const std::string& filename, const std::string& message, const char* formatTime, const char* mode) {
+	void openOrCreate(const std::string& filename);
+	void closeStream();
+	void printFile(const std::string& message, const char* formatTime, const char* mode);
+	std::ofstream streamLogFile;
 
-friend class Matt_daemon
+friend class Matt_daemon;
 };
 
 #endif
