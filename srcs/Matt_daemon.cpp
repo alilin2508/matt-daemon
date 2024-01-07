@@ -73,7 +73,7 @@ Matt_daemon::Matt_daemon()
         struct epoll_event Events[MAX_EVENTS];
         int N = epoll_wait(EPoll, Events, MAX_EVENTS, -1);
 
-        for (unsigned int i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i) {
             if (Events[i].data.fd == MasterSocket) {
                 int SlaveSocket = accept(MasterSocket, 0, 0);
                 set_nonblock(SlaveSocket);
@@ -86,7 +86,7 @@ Matt_daemon::Matt_daemon()
                 int RecvSize = recv(Events[i].data.fd, Buffer, 10240, MSG_NOSIGNAL);
                 if ((RecvSize == 0) && (errno != EAGAIN)) {
                     shutdown(Events[i].data.fd, SHUT_RDWR);
-					epoll_ctl(EPoll, EPOLL_CTL_DEL, Event[i].data.fd, NULL);
+					epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
                     close(Events[i].data.fd);
                 } else if (RecvSize > 0) {
                     send(Events[i].data.fd, Buffer, RecvSize, MSG_NOSIGNAL);
