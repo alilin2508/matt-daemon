@@ -1,6 +1,5 @@
-#include "Matt_daemon.hpp"
 #include "Tintin_reporter.hpp"
-
+#include "Matt_daemon.hpp"
 
 int main()
 {
@@ -10,10 +9,10 @@ int main()
 	Matt_daemon daemon;
 
 	// Start the daemon
-	daemon.start();
+	//daemon.start();
 
 	// Wait for the daemon to stop
-	daemon.wait();
+	//daemon.wait();
 
 	return 0;
 }

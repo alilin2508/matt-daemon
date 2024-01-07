@@ -12,7 +12,8 @@ public:
 	void logs(const std::string& message);
 	~Tintin_reporter();
 private:
-	bool fileExists(const char* filename);
+	bool fileExists(const std::string& filename);
+	void printFile();
 
 };
 

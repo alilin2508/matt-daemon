@@ -1,4 +1,5 @@
 #include "Matt_daemon.hpp"
+#include "Tintin_reporter.hpp"
 
 Matt_daemon::set_nonblock(int fd)
 {
@@ -33,6 +34,7 @@ Matt_daemon::Matt_daemon()
 
     umask(0);
 
+		Tintin_reporter reporter;
     int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     struct sockaddr_in SockAddr;

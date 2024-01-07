@@ -1,7 +1,7 @@
 #include "Tintin_reporter.hpp"
+#include <sys/stat.h>
 
-Tintin_reporter::Tintin_reporter(void)
-{
+Tintin_reporter::Tintin_reporter(void){
 	std::cout << "Default Constructor reporter called" << std::endl;
 }
 
@@ -19,28 +19,21 @@ void Tintin_reporter::logs(const std::string& message) {
  if (!fileExists("/var/log/matt_daemon")) {
      createLogFile("/var/log/matt_daemon");
  }
-
-	std::cout << "TEST" << std::endl;	
 }
 
-bool Tintin_reporter::fileExists(const char* filename) {
-    // creating an ifstream object named file
-    ifstream file;
-
-    // opening the file
-    file.open(filename);
-    if (file)
+bool Tintin_reporter::fileExists(const std::string& filename) {
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
     {
-        file.close()
-        return (true)
+        return true;
     }
-    else
-    {
-        return (false)
-    }
+    return false;
 }
 
-Tintin_reporter::~Tintin_reporter()
-{
+void Tintin_reporter::printFile() {
+
+}
+
+Tintin_reporter::~Tintin_reporter(){
 	std::cout << "Destructor Tintin Reporter called" << std::endl;
 }
