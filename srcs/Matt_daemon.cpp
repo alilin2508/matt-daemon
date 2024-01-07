@@ -22,12 +22,17 @@ void Matt_daemon::close_server()
     exit(EXIT_SUCCESS);
 }
 
+static void Matt_daemon::signalHandler(int sig) {
+    cout << "Signal received: " << sig << endl;
+    exit(EXIT_SUCCESS);
+}
+
 Matt_daemon::Matt_daemon()
 {
-		signal(SIGCHLD, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
-    signal(SIGKILL, SIG_IGN);
+	signal(SIGCHLD, signalHandler);
+    signal(SIGHUP, signalHandler);
+    signal(SIGTERM, signalHandler);
+    signal(SIGKILL, signalHandler);
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -47,16 +52,16 @@ Matt_daemon::Matt_daemon()
         exit(EXIT_SUCCESS);
     }
 
-		pid_t daemonPid = getpid();
+	pid_t daemonPid = getpid();
     char daemonPidStr[30];
     snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ",daemonPid);
 
     umask(0);
 		
-		myReporter.openOrCreate("/var/log/matt_daemon");
-		myReporter.logs("Entering Daemon mode.", "INFO");
-		myReporter.logs(daemonPidStr, "INFO");
-		myReporter.closeStream();
+	myReporter.openOrCreate("/var/log/matt_daemon");
+	myReporter.logs("Entering Daemon mode.", "INFO");
+	myReporter.logs(daemonPidStr, "INFO");
+	myReporter.closeStream();
 
     MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
