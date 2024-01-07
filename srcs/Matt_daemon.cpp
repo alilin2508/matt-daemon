@@ -47,7 +47,7 @@ Matt_daemon::Matt_daemon()
 		myReporter.logs(daemonPidStr, "INFO");
 		myReporter.closeStream();
 
-		while(1);
+//		while(1);
 	
     int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
