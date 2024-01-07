@@ -36,12 +36,18 @@ Matt_daemon::Matt_daemon()
         exit(EXIT_SUCCESS);
     }
 
-    umask(0);
+		pid_t daemonPid = getpid();
+    char daemonPidStr[30];
+    snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ",daemonPid);
 
+    umask(0);
+		
 		myReporter.openOrCreate("/var/log/matt_daemon");
-		myReporter.logs("TEST", "INFO");
+		myReporter.logs("Entering Daemon mode.", "INFO");
+		myReporter.logs(daemonPidStr, "INFO");
 		myReporter.closeStream();
 
+		while(1);
 	
     int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 

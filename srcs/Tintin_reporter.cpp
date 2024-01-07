@@ -30,7 +30,7 @@ void Tintin_reporter::closeStream() {
 
 void Tintin_reporter::printFile(const std::string& message, const char* formatTime, const char* mode) {
 	std::cout << "printing in file" << std::endl;
-	streamLogFile << formatTime << " [ "<< mode << " ]  : " << message << std::endl;
+	streamLogFile << formatTime << " [ "<< mode << " ] - Matt_daemon : " << message << std::endl;
 }
 
 Tintin_reporter::~Tintin_reporter(){
