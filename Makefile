@@ -4,18 +4,19 @@ CC      = clang++
 FLAGS   = -Wall -Wextra -Werror
 DIR_INC = -I ./includes/
 
-SRCS 	:= 	Matt_daemon.cpp \
+SRCS 	:= 	main.cpp \
+			Matt_daemon.cpp \
 			Tintin_reporter.cpp \
 
 DIR_SRCS 	= ./srcs
 
 DIR_OBJ 	= obj
 
-OBJS        := $(addprefix ${DIR_OBJ}/, ${SRCS:.c=.o})
+OBJS        := $(addprefix ${DIR_OBJ}/, ${SRCS:.cpp=.o})
 
 all: $(NAME)
 
-$(DIR_OBJ)/%.o:	$(DIR_SRCS)/%.c
+$(DIR_OBJ)/%.o:	$(DIR_SRCS)/%.cpp
 	@mkdir -p $(dir $@)
 	@$(CC) $(FLAGS) $(DIR_INC) -o $@ -c $<
 

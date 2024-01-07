@@ -1,3 +1,6 @@
+#ifndef MATT_DAEMON_HPP
+# define MATT_DAEMON_HPP
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,6 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include "Tintin_reporter.hpp"
 
 # define MAX_EVENTS 3
 # define PORT 4242
@@ -21,5 +25,7 @@ public:
 
 	int set_nonblock(int fd);
 private:
-	/* data */
+	Tintin_reporter myReporter;
 };
+
+#endif

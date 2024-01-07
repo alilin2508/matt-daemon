@@ -1,6 +1,7 @@
 #include "Matt_daemon.hpp"
+#include "Tintin_reporter.hpp"
 
-Matt_daemon::set_nonblock(int fd)
+int Matt_daemon::set_nonblock(int fd)
 {
     int flags;
     if (-1 == (flags = fcntl(fd, F_GETFL, 0)))
@@ -8,9 +9,13 @@ Matt_daemon::set_nonblock(int fd)
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
+Matt_daemon::~Matt_daemon(){
+	std::cout << "Destructor Matt Daemon called" << std::endl;
+}
+
 Matt_daemon::Matt_daemon()
 {
-	signal(SIGCHLD, SIG_IGN);
+		signal(SIGCHLD, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
 
     pid_t pid = fork();
@@ -31,8 +36,19 @@ Matt_daemon::Matt_daemon()
         exit(EXIT_SUCCESS);
     }
 
-    umask(0);
+		pid_t daemonPid = getpid();
+    char daemonPidStr[30];
+    snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ",daemonPid);
 
+    umask(0);
+		
+		myReporter.openOrCreate("/var/log/matt_daemon");
+		myReporter.logs("Entering Daemon mode.", "INFO");
+		myReporter.logs(daemonPidStr, "INFO");
+		myReporter.closeStream();
+
+//		while(1);
+	
     int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     struct sockaddr_in SockAddr;
@@ -78,5 +94,5 @@ Matt_daemon::Matt_daemon()
             }
         }
     }
-    return 0;
+    //return 0;
 }
