@@ -9,14 +9,25 @@ int Matt_daemon::set_nonblock(int fd)
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-Matt_daemon::~Matt_daemon(){
-	std::cout << "Destructor Matt Daemon called" << std::endl;
+void Matt_daemon::close_server()
+{
+    for (int clientSocket : ClientSocket)
+    {
+        epoll_ctl(EPoll, EPOLL_CTL_DEL, clientSocket, NULL);
+        shutdown(clientSocket, SHUT_RDWR);
+        close(clientSocket);
+    }
+    close(MasterSocket);
+    close(EPoll);
+    exit(EXIT_SUCCESS);
 }
 
 Matt_daemon::Matt_daemon()
 {
 		signal(SIGCHLD, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
+    signal(SIGTERM, SIG_IGN);
+    signal(SIGKILL, SIG_IGN);
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -47,9 +58,7 @@ Matt_daemon::Matt_daemon()
 		myReporter.logs(daemonPidStr, "INFO");
 		myReporter.closeStream();
 
-//		while(1);
-	
-    int MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     struct sockaddr_in SockAddr;
     SockAddr.sin_family = AF_INET;
@@ -60,39 +69,49 @@ Matt_daemon::Matt_daemon()
 
     set_nonblock(MasterSocket);
 
-    listen(MasterSocket, SOMAXCONN);
+    listen(MasterSocket, MAXCONN);
 
-    int EPoll = epoll_create1(0);
+    EPoll = epoll_create1(0);
 
-    struct epoll_event Event;
     Event.data.fd = MasterSocket;
     Event.events = EPOLLIN;
     epoll_ctl(EPoll, EPOLL_CTL_ADD, MasterSocket, &Event);
 
     while (1) {
-        struct epoll_event Events[MAX_EVENTS];
         int N = epoll_wait(EPoll, Events, MAX_EVENTS, -1);
 
-        for (unsigned int i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i) {
             if (Events[i].data.fd == MasterSocket) {
-                int SlaveSocket = accept(MasterSocket, 0, 0);
-                set_nonblock(SlaveSocket);
-                struct epoll_event Event;
-                Event.data.fd = SlaveSocket;
-                Event.events = EPOLLIN;
-                epoll_ctl(EPoll, EPOLL_CTL_ADD, SlaveSocket, &Event);
+                if (ClientSocket.size() < 3)
+                {
+                    cout << "New client" << endl;
+                    int NewClient = accept(MasterSocket, 0, 0);
+                    ClientSocket.push_back(NewClient);
+                    set_nonblock(NewClient);
+                    Event.data.fd = NewClient;
+                    Event.events = EPOLLIN;
+                    epoll_ctl(EPoll, EPOLL_CTL_ADD, NewClient, &Event);
+                }
             } else {
                 static char Buffer[10240];
                 int RecvSize = recv(Events[i].data.fd, Buffer, 10240, MSG_NOSIGNAL);
                 if ((RecvSize == 0) && (errno != EAGAIN)) {
+                    cout << "Client disconnected" << endl;
+					epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
                     shutdown(Events[i].data.fd, SHUT_RDWR);
-					epoll_ctl(EPoll, EPOLL_CTL_DEL, Event[i].data.fd, NULL);
+                    ClientSocket.erase(find(ClientSocket.begin(), ClientSocket.end(), Events[i].data.fd));
                     close(Events[i].data.fd);
                 } else if (RecvSize > 0) {
-                    send(Events[i].data.fd, Buffer, RecvSize, MSG_NOSIGNAL);
+                    if (strcmp(Buffer, "quit\n") == 0)
+                        close_server();
+                    //print in logs
                 }
             }
         }
     }
-    //return 0;
+}
+
+Matt_daemon::~Matt_daemon()
+{
+  std::cout << "Destructor Matt Daemon called" << std::endl;
 }
