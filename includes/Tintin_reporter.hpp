@@ -5,7 +5,6 @@
 #include <fstream>
 #include <ctime>
 #include <sys/stat.h>
-#include "Matt_daemon.hpp"
 
 class Tintin_reporter
 {
