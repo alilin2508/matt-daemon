@@ -30,15 +30,16 @@ public:
 	Matt_daemon();
 	~Matt_daemon();
 
-	int 	set_nonblock(int fd);
-	void	close_server();
+	int 		set_nonblock(int fd);
+	void		close_server();
+	static void signalHandler(int sig);
 private:
 	int					MasterSocket;
 	std::vector<int>	ClientSocket;
 	int					EPoll;
 	struct epoll_event	Events[MAX_EVENTS];
 	struct epoll_event	Event;
-  Tintin_reporter myReporter;
+	Tintin_reporter 	myReporter;
 };
 
 #endif
