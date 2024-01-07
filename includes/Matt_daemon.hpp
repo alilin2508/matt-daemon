@@ -1,3 +1,6 @@
+#ifndef MATT_DAEMON_HPP
+# define MATT_DAEMON_HPP
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -23,3 +26,5 @@ public:
 private:
 	/* data */
 };
+
+#endif

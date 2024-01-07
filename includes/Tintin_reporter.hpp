@@ -1,3 +1,6 @@
+#ifndef TINTIN_REPORTER_HPP
+# define TINTIN_REPORTER_HPP
+
 #include <iostream>
 #include <fstream>
 #include <ctime>
@@ -12,3 +15,5 @@ private:
 	bool fileExists(const char* filename);
 
 };
+
+#endif
