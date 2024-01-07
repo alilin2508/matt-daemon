@@ -27,8 +27,7 @@ void	Matt_daemon::unlockDaemon() {
 	std::remove("/var/lock/matt_daemon.lock");	
 }
 
-static void Matt_daemon::signalHandler(int sig) {
-		unlockDaemon();
+void Matt_daemon::signalHandler(int sig) {
     cout << "Signal received: " << sig << endl;
     exit(EXIT_SUCCESS);
 }
