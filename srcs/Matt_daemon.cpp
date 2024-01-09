@@ -17,19 +17,26 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
-		unlockDaemon();
+	unlockDaemon();
     close(MasterSocket);
     close(EPoll);
     exit(EXIT_SUCCESS);
 }
 
 void	Matt_daemon::unlockDaemon() {
-	std::remove("/var/lock/matt_daemon.lock");	
+	std::remove("/var/lock/matt_daemon.lock");
 }
 
 void Matt_daemon::signalHandler(int sig) {
+    Tintin_reporter  myReporter;
+
     cout << "Signal received: " << sig << endl;
-    exit(EXIT_SUCCESS);
+    myReporter.openOrCreate("/var/log/matt_daemon");
+    myReporter.logs("Signal received: " + std::to_string(sig), "INFO");
+    myReporter.logs("Exiting Daemon mode.", "INFO");
+    myReporter.closeStream();
+    std::remove("/var/lock/matt_daemon.lock");
+	exit(EXIT_SUCCESS);
 }
 
 Matt_daemon::Matt_daemon()

@@ -6,16 +6,14 @@ Tintin_reporter::Tintin_reporter(void){
 }
 
 void Tintin_reporter::logs(const std::string& message, const char* mode) {
-
-  // Obtention de la date et de l'heure actuelles
-  std::time_t now = std::time(0);
-  //Formattage de la date en structure avec heure mois année... 
-  std::tm* localTime = std::localtime(&now);
+	// Obtention de la date et de l'heure actuelles
+	std::time_t now = std::time(0);
+	//Formattage de la date en structure avec heure mois année... 
+	std::tm* localTime = std::localtime(&now);
   
-  // impression de la date formatté dans mon buffer 
-  char buffer[80];
-  strftime(buffer, sizeof(buffer), "[%d/%m/%Y-%H:%M:%S]", localTime);
-
+	// impression de la date formatté dans mon buffer 
+	char buffer[80];
+	strftime(buffer, sizeof(buffer), "[%d/%m/%Y-%H:%M:%S]", localTime);
 	printFile(message, buffer, mode);
  
 }
