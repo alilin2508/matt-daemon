@@ -17,7 +17,8 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
-	unlockDaemon();
+		myReporter.closeStream();
+		unlockDaemon();
     close(MasterSocket);
     close(EPoll);
     exit(EXIT_SUCCESS);
@@ -28,20 +29,29 @@ void	Matt_daemon::unlockDaemon() {
 }
 
 void Matt_daemon::signalHandler(int sig) {
-    Tintin_reporter  myReporter;
+		Matt_daemon* myDaemon = instance();
 
     cout << "Signal received: " << sig << endl;
-    myReporter.openOrCreate("/var/log/matt_daemon");
-    myReporter.logs("Signal received: " + std::to_string(sig), "INFO");
-    myReporter.logs("Exiting Daemon mode.", "INFO");
-    myReporter.closeStream();
+    myDaemon->myReporter.logs("Signal received: " + std::to_string(sig), "INFO");
+    myDaemon->myReporter.logs("Exiting Daemon mode.", "INFO");
+    myDaemon->myReporter.closeStream();
     std::remove("/var/lock/matt_daemon.lock");
-	exit(EXIT_SUCCESS);
+		exit(EXIT_SUCCESS);
 }
 
-Matt_daemon::Matt_daemon()
+Matt_daemon::Matt_daemon() {
+  std::cout << "Constructor Matt Daemon called" << std::endl;
+}
+
+
+void Matt_daemon::stop() {
+    instance() = nullptr;
+}
+
+void Matt_daemon::start()
 {
-	signal(SIGCHLD, signalHandler);
+		instance() = this;
+		signal(SIGCHLD, signalHandler);
     signal(SIGHUP, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGKILL, signalHandler);
@@ -73,7 +83,6 @@ Matt_daemon::Matt_daemon()
 	myReporter.openOrCreate("/var/log/matt_daemon");
 	myReporter.logs("Entering Daemon mode.", "INFO");
 	myReporter.logs(daemonPidStr, "INFO");
-	myReporter.closeStream();
 
     MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -114,13 +123,18 @@ Matt_daemon::Matt_daemon()
                 int RecvSize = recv(Events[i].data.fd, Buffer, 10240, MSG_NOSIGNAL);
                 if ((RecvSize == 0) && (errno != EAGAIN)) {
                     cout << "Client disconnected" << endl;
-					epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
+										epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
                     shutdown(Events[i].data.fd, SHUT_RDWR);
                     ClientSocket.erase(find(ClientSocket.begin(), ClientSocket.end(), Events[i].data.fd));
                     close(Events[i].data.fd);
                 } else if (RecvSize > 0) {
-                    if (strcmp(Buffer, "quit\n") == 0)
+                    if (strcmp(Buffer, "quit\n") == 0) {
+												myReporter.logs("Request quitting.", "INFO");
                         close_server();
+										} else {
+											std::string strBuffer(Buffer);
+											myReporter.logs("User input : " + strBuffer, "INFO");
+										}
                     //print in logs
                 }
             }

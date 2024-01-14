@@ -29,5 +29,7 @@ int main()
 		return 1;
 	}
 	Matt_daemon daemon;
+	daemon.start();
+	daemon.stop();
 	return 0;
 }
