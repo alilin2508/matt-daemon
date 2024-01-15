@@ -17,18 +17,41 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
+	myReporter.closeStream();
+	unlockDaemon();
     close(MasterSocket);
     close(EPoll);
     exit(EXIT_SUCCESS);
 }
 
-static void Matt_daemon::signalHandler(int sig) {
-    cout << "Signal received: " << sig << endl;
-    exit(EXIT_SUCCESS);
+void Matt_daemon::unlockDaemon() {
+	std::remove("/var/lock/matt_daemon.lock");
 }
 
-Matt_daemon::Matt_daemon()
+void Matt_daemon::signalHandler(int sig)
+{	
+    Matt_daemon* myDaemon = instance();
+
+    myDaemon->myReporter.logs("Signal received: " + std::to_string(sig), "INFO");
+    myDaemon->myReporter.logs("Exiting Daemon mode.", "INFO");
+    myDaemon->myReporter.closeStream();
+    myDaemon->close_server();
+    myDaemon->unlockDaemon();
+	exit(EXIT_SUCCESS);
+}
+
+Matt_daemon::Matt_daemon() {
+    std::cout << "Constructor Matt Daemon called" << std::endl;
+}
+
+
+void Matt_daemon::stop() {
+    instance() = nullptr;
+}
+
+void Matt_daemon::start()
 {
+	instance() = this;
 	signal(SIGCHLD, signalHandler);
     signal(SIGHUP, signalHandler);
     signal(SIGTERM, signalHandler);
@@ -54,14 +77,13 @@ Matt_daemon::Matt_daemon()
 
 	pid_t daemonPid = getpid();
     char daemonPidStr[30];
-    snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ",daemonPid);
+    snprintf(daemonPidStr, sizeof(daemonPidStr), "%s%d", "started. PID: ", daemonPid);
 
     umask(0);
 		
 	myReporter.openOrCreate("/var/log/matt_daemon");
 	myReporter.logs("Entering Daemon mode.", "INFO");
 	myReporter.logs(daemonPidStr, "INFO");
-	myReporter.closeStream();
 
     MasterSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -89,7 +111,7 @@ Matt_daemon::Matt_daemon()
             if (Events[i].data.fd == MasterSocket) {
                 if (ClientSocket.size() < 3)
                 {
-                    cout << "New client" << endl;
+                    myReporter.logs("New client.", "INFO");
                     int NewClient = accept(MasterSocket, 0, 0);
                     ClientSocket.push_back(NewClient);
                     set_nonblock(NewClient);
@@ -100,16 +122,26 @@ Matt_daemon::Matt_daemon()
             } else {
                 static char Buffer[10240];
                 int RecvSize = recv(Events[i].data.fd, Buffer, 10240, MSG_NOSIGNAL);
-                if ((RecvSize == 0) && (errno != EAGAIN)) {
-                    cout << "Client disconnected" << endl;
+                if ((RecvSize == 0) && (errno != EAGAIN))
+                {
+                    myReporter.logs("Client disconnected.", "INFO");
 					epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
                     shutdown(Events[i].data.fd, SHUT_RDWR);
                     ClientSocket.erase(find(ClientSocket.begin(), ClientSocket.end(), Events[i].data.fd));
                     close(Events[i].data.fd);
-                } else if (RecvSize > 0) {
+                }
+                else if (RecvSize > 0)
+                {
                     if (strcmp(Buffer, "quit\n") == 0)
+                    {
+					    myReporter.logs("Request quitting.", "INFO");
                         close_server();
-                    //print in logs
+					}
+                    else
+                    {
+					    std::string strBuffer(Buffer);
+						myReporter.logs("User input : " + strBuffer, "LOG");
+					}
                 }
             }
         }

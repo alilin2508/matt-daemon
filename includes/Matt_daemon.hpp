@@ -29,10 +29,16 @@ class Matt_daemon
 public:
 	Matt_daemon();
 	~Matt_daemon();
-
-	int 		set_nonblock(int fd);
-	void		close_server();
+  	static Matt_daemon*& instance() {
+        static Matt_daemon* inst = nullptr;
+        return inst;
+  	}
+  	void start(); 
+	void stop();
+	int 	set_nonblock(int fd);
+	void	close_server();
 	static void signalHandler(int sig);
+	void	unlockDaemon();
 private:
 	int					MasterSocket;
 	std::vector<int>	ClientSocket;
