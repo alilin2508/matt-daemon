@@ -31,5 +31,4 @@ void Tintin_reporter::printFile(const std::string& message, const char* formatTi
 }
 
 Tintin_reporter::~Tintin_reporter(){
-	std::cout << "Destructor Tintin Reporter called" << std::endl;
 }

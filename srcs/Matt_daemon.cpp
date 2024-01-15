@@ -132,7 +132,7 @@ void Matt_daemon::start()
                 }
                 else if (RecvSize > 0)
                 {
-                    if (strcmp(Buffer, "quit\n") == 0)
+                    if (strncmp(Buffer, "quit", 4) == 0)
                     {
 					    myReporter.logs("Request quitting.", "INFO");
                         close_server();
@@ -140,7 +140,7 @@ void Matt_daemon::start()
                     else
                     {
 					    std::string strBuffer(Buffer);
-						myReporter.logs("User input : " + strBuffer, "LOG");
+						myReporter.logs("User input : " + strBuffer.substr(0, strBuffer.find('\n')), "LOG");
 					}
                 }
             }
@@ -150,5 +150,4 @@ void Matt_daemon::start()
 
 Matt_daemon::~Matt_daemon()
 {
-  std::cout << "Destructor Matt Daemon called" << std::endl;
 }
