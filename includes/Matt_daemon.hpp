@@ -29,11 +29,11 @@ class Matt_daemon
 public:
 	Matt_daemon();
 	~Matt_daemon();
-  static Matt_daemon*& instance() {
+  	static Matt_daemon*& instance() {
         static Matt_daemon* inst = nullptr;
         return inst;
-  }
-  void start(); 
+  	}
+  	void start(); 
 	void stop();
 	int 	set_nonblock(int fd);
 	void	close_server();
