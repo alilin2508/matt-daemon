@@ -17,6 +17,7 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
+    myReporter.logs("Exiting Daemon mode.", "INFO");
 	myReporter.closeStream();
 	unlockDaemon();
     close(MasterSocket);
@@ -33,8 +34,6 @@ void Matt_daemon::signalHandler(int sig)
     Matt_daemon* myDaemon = instance();
 
     myDaemon->myReporter.logs("Signal received: " + std::to_string(sig), "INFO");
-    myDaemon->myReporter.logs("Exiting Daemon mode.", "INFO");
-    myDaemon->myReporter.closeStream();
     myDaemon->close_server();
     myDaemon->unlockDaemon();
 	exit(EXIT_SUCCESS);
