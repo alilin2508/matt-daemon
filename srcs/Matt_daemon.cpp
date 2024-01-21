@@ -32,6 +32,7 @@ void Matt_daemon::unlockDaemon() {
         perror("Error unlocking file");
     } else {
         std::cout << "File unlocked successfully." << std::endl;
+        std::remove("/var/lock/matt_daemon.lock");
     }
 }
 

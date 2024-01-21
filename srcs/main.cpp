@@ -40,30 +40,39 @@ bool	daemon_running(const std::string& filename, int *lockFileFdPtr) {
 	generateKillScript("/kill_daemon.sh");
 	//If file doesn't exist kill process if it exist
 	if (stat(filename.c_str(), &buffer) != 0) {
-		std::cerr << "File lock don't exist : " << errno << std::endl;
+		//std::cerr << "File lock don't exist : " << errno << std::endl;
 		//Warning if delete lock file by hand all process is killed here in the script
 		std::system("/kill_daemon.sh");
-		//We create the file only so need to close after
+		//We create the file only so we close after
 		*lockFileFdPtr = open(filename.c_str(), O_RDWR | O_CREAT, 0644);
 		if (*lockFileFdPtr == -1) {
 			perror("Error opening or creating lock file");
 			return false;
 		}
+		close(*lockFileFdPtr);
 	}
 
 	//If file exist Get the fd to lock
-	std::cerr << "File lock exist : " << errno << std::endl;
+	//std::cerr << "File lock exist : " << errno << std::endl;
 	*lockFileFdPtr = open(filename.c_str(), O_RDWR | O_NONBLOCK);
 	if (flock(*lockFileFdPtr, LOCK_EX | LOCK_NB) == -1) {
 		if (errno == EWOULDBLOCK || errno == EAGAIN) {
-			std::cerr << "File is already locked or error locking file. Exiting : " << errno << std::endl;
+			std::ofstream streamLogFile;
+			streamLogFile.open("/var/log/matt_daemon", std::ios::out | std::ios::app);
+			std::time_t now = std::time(0);
+			std::tm* localTime = std::localtime(&now);
+			char buffer[80];
+			strftime(buffer, sizeof(buffer), "[%d/%m/%Y-%H:%M:%S]", localTime);
+			streamLogFile << buffer << " [ ERROR ] - Matt_daemon : File is already locked " << std::endl;
+			streamLogFile.close();
+			std::cerr << "File is already locked: " << errno << std::endl;
 		} else {
 			perror("Error locking file");
 		}
 		close(*lockFileFdPtr);
 		return true;
 	}
-	std::cout << "Daemon not running. Obtained lock." << std::endl;
+	std::cout << "Obtained lock." << std::endl;
 	return false;
 }
 
