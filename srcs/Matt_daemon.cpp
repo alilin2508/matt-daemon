@@ -27,13 +27,13 @@ void Matt_daemon::close_server()
 }
 
 void Matt_daemon::unlockDaemon() {
-
     if (flock(fdLock, LOCK_UN) == -1) {
         perror("Error unlocking file");
     } else {
         std::cout << "File unlocked successfully." << std::endl;
         std::remove("/var/lock/matt_daemon.lock");
     }
+    close(fdLock);
 }
 
 void Matt_daemon::signalHandler(int sig)
