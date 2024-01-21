@@ -1,5 +1,6 @@
 #include "Matt_daemon.hpp"
 #include "Tintin_reporter.hpp"
+#include <sys/file.h>
 
 int Matt_daemon::set_nonblock(int fd)
 {
@@ -26,7 +27,12 @@ void Matt_daemon::close_server()
 }
 
 void Matt_daemon::unlockDaemon() {
-	std::remove("/var/lock/matt_daemon.lock");
+
+    if (flock(fdLock, LOCK_UN) == -1) {
+        perror("Error unlocking file");
+    } else {
+        std::cout << "File unlocked successfully." << std::endl;
+    }
 }
 
 void Matt_daemon::signalHandler(int sig)
@@ -37,6 +43,10 @@ void Matt_daemon::signalHandler(int sig)
     myDaemon->close_server();
     myDaemon->unlockDaemon();
 	exit(EXIT_SUCCESS);
+}
+
+Matt_daemon::Matt_daemon(int lockFileFd) : fdLock(lockFileFd) {
+    std::cout << "Constructor Matt_daemon called, fdLock assigned to " << fdLock << std::endl;
 }
 
 Matt_daemon::Matt_daemon() {

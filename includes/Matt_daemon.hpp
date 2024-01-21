@@ -27,6 +27,7 @@ using namespace std;
 class Matt_daemon
 {
 public:
+    Matt_daemon(int lockFileFd);
 	Matt_daemon();
 	~Matt_daemon();
   	static Matt_daemon*& instance() {
@@ -40,6 +41,7 @@ public:
 	static void signalHandler(int sig);
 	void	unlockDaemon();
 private:
+	int fdLock;
 	int					MasterSocket;
 	std::vector<int>	ClientSocket;
 	int					EPoll;
