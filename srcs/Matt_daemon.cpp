@@ -18,6 +18,9 @@ void Matt_daemon::close_server()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
+    while (!ClientSocket.empty())
+        ClientSocket.pop_back();
+    ClientSocket.shrink_to_fit();
     myReporter.logs("Exiting Daemon mode.", "INFO");
 	myReporter.closeStream();
 	unlockDaemon();
@@ -62,10 +65,15 @@ void Matt_daemon::stop() {
 void Matt_daemon::start()
 {
 	instance() = this;
-	signal(SIGCHLD, signalHandler);
     signal(SIGHUP, signalHandler);
-    signal(SIGTERM, signalHandler);
+    signal(SIGINT, signalHandler);
+    signal(SIGQUIT, signalHandler);
     signal(SIGKILL, signalHandler);
+    signal(SIGPIPE, signalHandler);
+    signal(SIGTERM, signalHandler);
+    signal(SIGUSR1, signalHandler);
+    signal(SIGUSR2, signalHandler);
+	signal(SIGCHLD, signalHandler);
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -84,6 +92,7 @@ void Matt_daemon::start()
     } else if (pid != 0) {
         exit(EXIT_SUCCESS);
     }
+    chdir("/");
 
 	pid_t daemonPid = getpid();
     char daemonPidStr[30];
@@ -138,6 +147,7 @@ void Matt_daemon::start()
 					epoll_ctl(EPoll, EPOLL_CTL_DEL, Events[i].data.fd, NULL);
                     shutdown(Events[i].data.fd, SHUT_RDWR);
                     ClientSocket.erase(find(ClientSocket.begin(), ClientSocket.end(), Events[i].data.fd));
+                    ClientSocket.shrink_to_fit();
                     close(Events[i].data.fd);
                 }
                 else if (RecvSize > 0)

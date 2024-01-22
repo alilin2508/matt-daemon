@@ -6,7 +6,9 @@ RUN apt install -y	make \
 					g++ \
 					procps \
 					netcat-traditional \
-					netcat-openbsd
+					netcat-openbsd \
+					net-tools \
+					util-linux 
 
 COPY . /root/matt-daemon
 WORKDIR /root/matt-daemon

@@ -41,7 +41,9 @@ public:
 	static void signalHandler(int sig);
 	void	unlockDaemon();
 private:
-	int fdLock;
+	Matt_daemon(Matt_daemon const &other);
+	Matt_daemon &operator=(Matt_daemon const &other);
+	int 				fdLock;
 	int					MasterSocket;
 	std::vector<int>	ClientSocket;
 	int					EPoll;
