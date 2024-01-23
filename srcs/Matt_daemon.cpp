@@ -65,14 +65,10 @@ void Matt_daemon::stop() {
 void Matt_daemon::start()
 {
 	instance() = this;
-    signal(SIGHUP, signalHandler);
     signal(SIGINT, signalHandler);
     signal(SIGQUIT, signalHandler);
     signal(SIGKILL, signalHandler);
-    signal(SIGPIPE, signalHandler);
     signal(SIGTERM, signalHandler);
-    signal(SIGUSR1, signalHandler);
-    signal(SIGUSR2, signalHandler);
 	signal(SIGCHLD, signalHandler);
 
     pid_t pid = fork();
